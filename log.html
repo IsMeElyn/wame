@@ -1,0 +1,17 @@
+<!-- Tampilan log. Variabel: botName, session, logSession, title, total, shown, filters, groupsMatched, entries[{time, lv, src, msg}] -->
+<rich disclaimer="{{botName}}">
+  <h2>📜 Log — {{session}}</h2>
+  <p>Sesi log: <code>{{logSession}}</code> · Total entri: <b>{{total|num}}</b> · Ditampilkan: <b>{{shown}}</b></p>
+  <if test="filters"><p>Filter: {{filters}}</p></if>
+  <if test="groupsMatched"><p>Grup cocok: {{groupsMatched}}</p></if>
+  <if test="entries">
+    <table title="{{title}}">
+      <tr><th>Waktu</th><th>Lv</th><th>Sumber</th><th>Kejadian</th></tr>
+      <for each="entries" as="e">
+        <tr><td>{{e.time}}</td><td>{{e.lv}}</td><td>{{e.src}}</td><td>{{e.msg}}</td></tr>
+      </for>
+    </table>
+  </if>
+  <unless test="entries"><p>Tidak ada entri yang cocok.</p></unless>
+  <p>Gunakan: <code>.log 50</code> · <code>.log error</code> · <code>.log search &lt;inisial grup&gt;</code> · <code>.log src plugin</code> · <code>.mlog</code></p>
+</rich>
