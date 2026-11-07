@@ -3,30 +3,51 @@
 const U = require('../src/utils');
 
 const PAGE = 50;
+const MAX_ROWS = 10; // batas baris satu daftar pilihan (single_select) WhatsApp
+const JID_RE = /^[\d-]+@g\.us$/;
 const yn = (v) => (v ? 'Ya' : 'Tidak');
+
+/** Beberapa grup mirip -> kirim daftar pilihan interaktif. Id baris = `.cekgc <jid>` sehingga langsung diproses saat dipilih. */
+function pickGroup(ctx, m, query, found) {
+  const shown = found.slice(0, MAX_ROWS);
+  const more = found.length - shown.length;
+  return ctx.sendInteractive(m.chat, {
+    text: `🔎 Ada *${found.length}* grup yang mirip dengan "${query}".\nPilih grup yang kamu maksud:${more > 0 ? `\n_(${more} hasil lain tidak ditampilkan — tulis nama yang lebih lengkap untuk mempersempit)_` : ''}`,
+    footer: 'Ketuk tombol di bawah untuk memilih',
+    nativeFlow: [{
+      text: '👥 Pilih grup',
+      sections: [{
+        title: 'Hasil pencarian',
+        rows: shown.map((g) => ({ title: U.truncate(g.subject || '(tanpa nama)', 24), description: U.truncate(`${g.subject || ''} · ${g.size || 0} anggota`, 72), id: `${m.prefix}cekgc ${g.id}` })),
+      }],
+    }],
+  }, { quoted: m.raw });
+}
 
 module.exports = {
   name: 'groupinfo',
-  version: '1.0.0',
+  version: '1.1.0',
   description: 'Cek data lengkap grup berdasarkan nama/inisial',
   category: 'Grup',
   commands: [
     {
-      name: 'cekgc', ownerOnly: true, usage: '.cekgc <inisial nama grup> [nomor]', description: 'Data lengkap grup (anggota, admin, pengaturan, aktivitas)',
+      name: 'cekgc', ownerOnly: true, usage: '.cekgc <inisial nama grup>', description: 'Data lengkap grup (anggota, admin, pengaturan, aktivitas)',
       async run(ctx, m, args) {
         if (args[0] === 'refresh') { const n = await ctx.groups.refresh(); return m.reply(`✅ Cache ${n} grup diperbarui.`); }
-        let pickN = 1;
-        if (args.length > 1 && /^\d+$/.test(args[args.length - 1])) pickN = Number(args.pop());
         const query = args.join(' ').trim();
         if (!query) return m.reply(`Gunakan: .cekgc <inisial/nama grup>\nContoh: .cekgc dtl\nGrup dikenal: ${ctx.groups.list().length} (.cekgc refresh untuk sinkron)`);
 
-        const found = ctx.groups.find(query);
-        if (!found.length) return m.reply(`❌ Tidak ada grup yang cocok dengan "${query}". Coba .cekgc refresh.`);
-        if (found.length > 1 && args.length && pickN === 1 && !(found[0].subject.toLowerCase() === query.toLowerCase())) {
-          return ctx.sendRich(m.chat, 'cekgc-pick', { query, groups: found.slice(0, 15).map((g, i) => ({ n: i + 1, subject: g.subject, size: g.size })) }, { quoted: m.raw });
+        // pilihan dari pesan interaktif: `.cekgc <jid grup>` -> langsung, tanpa pencarian ulang
+        let chosen;
+        if (JID_RE.test(query)) {
+          chosen = ctx.groups.list().find((x) => x.id === query);
+          if (!chosen) return m.reply('❌ Grup itu tidak ada lagi di cache. Coba `.cekgc refresh`.');
+        } else {
+          const found = ctx.groups.find(query);
+          if (!found.length) return m.reply(`❌ Tidak ada grup yang cocok dengan "${query}". Coba .cekgc refresh.`);
+          if (found.length > 1) return pickGroup(ctx, m, query, found);   // lebih dari satu -> user yang memilih
+          chosen = found[0];                                              // hanya satu -> langsung
         }
-        const chosen = found[pickN - 1];
-        if (!chosen) return m.reply(`Nomor ${pickN} tidak ada (ada ${found.length} hasil).`);
 
         let g;
         try { g = await ctx.groups.metadata(chosen.id, { force: true }); } catch { g = chosen; }
