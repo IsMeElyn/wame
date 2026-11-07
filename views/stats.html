@@ -1,0 +1,42 @@
+<!-- Statistik bot. Lihat plugins/stats.js untuk variabel. -->
+<rich disclaimer="{{botName}}">
+  <h2>📊 Statistik {{botName}}</h2>
+  <table title="Bot">
+    <tr><th>Item</th><th>Nilai</th></tr>
+    <for each="bot" as="r"><tr><td>{{r.k}}</td><td>{{r.v}}</td></tr></for>
+  </table>
+  <table title="Pesan &amp; Command">
+    <tr><th>Item</th><th>Nilai</th></tr>
+    <for each="traffic" as="r"><tr><td>{{r.k}}</td><td>{{r.v}}</td></tr></for>
+  </table>
+  <table title="Resource">
+    <tr><th>Item</th><th>Nilai</th></tr>
+    <for each="resource" as="r"><tr><td>{{r.k}}</td><td>{{r.v}}</td></tr></for>
+  </table>
+  <table title="Log sesi ini">
+    <tr><th>Item</th><th>Nilai</th></tr>
+    <for each="logs" as="r"><tr><td>{{r.k}}</td><td>{{r.v}}</td></tr></for>
+  </table>
+  <if test="days">
+    <table title="Aktivitas 7 hari">
+      <tr><th>Tanggal</th><th>Masuk</th><th>Keluar</th><th>Cmd</th></tr>
+      <for each="days" as="d"><tr><td>{{d.date}}</td><td>{{d.rx}}</td><td>{{d.tx}}</td><td>{{d.cmd}}</td></tr></for>
+    </table>
+  </if>
+  <if test="topCommands">
+    <table title="Command terpopuler">
+      <tr><th>Command</th><th>Dipakai</th></tr>
+      <for each="topCommands" as="c"><tr><td>{{c.name}}</td><td>{{c.count}}</td></tr></for>
+    </table>
+  </if>
+  <if test="topChats">
+    <table title="Chat teraktif">
+      <tr><th>Chat</th><th>Masuk</th><th>Keluar</th></tr>
+      <for each="topChats" as="c"><tr><td>{{c.name}}</td><td>{{c.in}}</td><td>{{c.out}}</td></tr></for>
+    </table>
+  </if>
+  <table title="Plugin">
+    <tr><th>Plugin</th><th>Status</th><th>Err</th></tr>
+    <for each="plugins" as="p"><tr><td>{{p.name}}@{{p.version}}</td><td>{{p.state}}</td><td>{{p.errors}}</td></tr></for>
+  </table>
+</rich>

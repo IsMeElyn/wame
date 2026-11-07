@@ -1,0 +1,8 @@
+<!-- Halaman anggota grup. Variabel: botName, subject, page, pages, from, members[{n,name,number,role}] -->
+<rich disclaimer="{{botName}}">
+  <h3>👤 Anggota {{subject}} ({{page}}/{{pages}})</h3>
+  <table title="Anggota {{from}}–{{to}}">
+    <tr><th>No</th><th>Nama</th><th>Nomor</th><th>Peran</th></tr>
+    <for each="members" as="m"><tr><td>{{m.n}}</td><td>{{m.name}}</td><td>{{m.number}}</td><td>{{m.role}}</td></tr></for>
+  </table>
+</rich>

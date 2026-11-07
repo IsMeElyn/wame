@@ -1,0 +1,11 @@
+<!-- Daftar plugin. Variabel: botName, session, plugins[{name, version, state, icon, commands, errors, deps}] -->
+<rich disclaimer="{{botName}}">
+  <h2>🧩 Plugin — sesi {{session}}</h2>
+  <table title="Status plugin">
+    <tr><th>Plugin</th><th>Ver</th><th>Status</th><th>Cmd</th><th>Err</th><th>Dependensi</th></tr>
+    <for each="plugins" as="p">
+      <tr><td>{{p.name}}</td><td>{{p.version}}</td><td>{{p.icon}} {{p.state}}</td><td>{{p.commands}}</td><td>{{p.errors}}</td><td>{{p.deps}}</td></tr>
+    </for>
+  </table>
+  <p>Kelola: <code>.plugin enable|disable|reload|start|stop &lt;nama&gt;</code> · <code>.plugin info &lt;nama&gt;</code> · <code>.plugin config &lt;nama&gt; [key] [nilai]</code></p>
+</rich>

@@ -1,0 +1,14 @@
+<!-- Menu utama. Variabel: botName, mode, prefix, state, categories[{name, cmds[{usage, description}]}] -->
+<rich disclaimer="{{botName}}">
+  <h2>📖 Menu {{botName}}</h2>
+  <p>Mode: <b>{{mode}}</b> · Prefix: <code>{{prefix}}</code> · Command: <b>{{state}}</b></p>
+  <for each="categories" as="c">
+    <table title="{{c.name}}">
+      <tr><th>Command</th><th>Fungsi</th></tr>
+      <for each="c.cmds" as="x">
+        <tr><td>{{x.usage}}</td><td>{{x.description}}</td></tr>
+      </for>
+    </table>
+  </for>
+  <p>Contoh: kirim foto dengan caption <code>{{prefix}}sw Halooo!!</code> untuk dijadikan status.</p>
+</rich>

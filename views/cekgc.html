@@ -1,0 +1,24 @@
+<!-- Detail grup. Lihat plugins/groupinfo.js untuk variabel. -->
+<rich disclaimer="{{botName}}">
+  <h2>👥 {{g.subject}}</h2>
+  <table title="Informasi grup">
+    <tr><th>Item</th><th>Nilai</th></tr>
+    <for each="info" as="r"><tr><td>{{r.k}}</td><td>{{r.v}}</td></tr></for>
+  </table>
+  <if test="g.desc"><blockquote>{{g.desc|trunc:600}}</blockquote></if>
+  <table title="Pengaturan">
+    <tr><th>Pengaturan</th><th>Status</th></tr>
+    <for each="settings" as="r"><tr><td>{{r.k}}</td><td>{{r.v}}</td></tr></for>
+  </table>
+  <table title="Admin ({{adminCount}})">
+    <tr><th>No</th><th>Nama</th><th>Nomor</th><th>Peran</th></tr>
+    <for each="admins" as="a"><tr><td>{{@n}}</td><td>{{a.name}}</td><td>{{a.number}}</td><td>{{a.role}}</td></tr></for>
+  </table>
+  <if test="activity">
+    <table title="Aktivitas terakhir (log)">
+      <tr><th>Waktu</th><th>Kejadian</th></tr>
+      <for each="activity" as="e"><tr><td>{{e.time}}</td><td>{{e.msg}}</td></tr></for>
+    </table>
+  </if>
+  <p>Anggota ({{memberCount}}) dikirim pada pesan berikutnya.</p>
+</rich>
