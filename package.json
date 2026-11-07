@@ -1,0 +1,22 @@
+{
+  "name": "wa-bot",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp multi-akun berbasis @itsliaaa/baileys (CommonJS) — LowDB, Pino, auth terenkripsi, plugin system, Rich Message dari template HTML",
+  "main": "index.js",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node index.js",
+    "start:all": "node index.js --start-all",
+    "test": "node tests/run-all.js"
+  },
+  "dependencies": {
+    "@itsliaaa/baileys": "latest",
+    "@napi-rs/image": "^1.12.0",
+    "lowdb": "^7.0.1",
+    "pino": "^9.5.0",
+    "qr": "^0.5.0",
+    "ws": "^8.18.0"
+  }
+}
