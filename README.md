@@ -47,17 +47,22 @@ Prefix default `.` (bisa diubah). Mode **private** = hanya BotNoi, **public** = 
 | `.bot on/off` · `.mode private/public` · `.cmd on/off <nama>` | Kontrol (hanya BotNoi) |
 | `.setting` · `.backup` · `.restore` · `.ping` · `.uptime` | Pengaturan & info |
 | `.sw <caption>` + gambar/video (atau reply) | Jadikan status WhatsApp |
-| `.here <caption>` + dokumen/gambar/video (atau reply) | Kirim ulang media oleh BotNoi |
+| `.here <caption>` + dokumen/gambar/video/audio (atau reply) | Kirim ulang oleh BotNoi. Dokumen dikirim sebagai **video / audio / foto** sesuai mime (atau ekstensi / isi file bila mime generik); selain itu tetap dokumen |
 | `.rbit [MB\|%\|1080p]` + video/dokumen video | Kompres bitrate (H.264 CRF terbatas, maks 720p) |
 | `.log [n] [level] [search <kata>]` | Log terbaru (Rich) |
 | `.log search <inisial grup>` | Aktivitas grup tersebut |
 | `.mlog` | Manajer log (interaktif): lihat, reset, hapus, ekspor |
 | `.statistik` | Statistik bot & log (Rich) |
-| `.cekgc <inisial grup>` | Data lengkap grup + anggota (Rich) |
-| `.catur ai [easy\|normal\|hard]` · `.catur duo` · `.m e2e4` | Catur: lawan AI / berdua di satu perangkat |
+| `.cekgc <inisial grup>` | Data lengkap grup + anggota (Rich). 1 hasil → langsung; >1 hasil mirip → **pesan interaktif** untuk memilih grup |
+| `.catur` | Kirim **catur.html** (HTML+CSS+JS satu file) — buka di browser, main dengan ketuk bidak: lawan AI / berdua, undo, saran, putar papan |
 | `.plugin …` · `.update` | Kelola plugin; perbarui file tanpa restart |
 
 `.log`, `.mlog`, `.cekgc` khusus BotNoi (privasi). Jika Rich Message tidak tampil di klien, `.setting rich off` memakai teks biasa.
+
+## Catur (HTML)
+
+`.catur` mengirim satu file `catur.html` yang dirakit dari `web/chess.html` (UI) + `lib/chess.js` (engine, ditanam di dalam file). Semua jalan di browser pemain — tanpa command langkah, tanpa state di bot. Game tersimpan otomatis di browser (localStorage). AI berjalan di Web Worker.
+Tips: di Android/desktop buka dengan Chrome/Firefox. Di iOS, pratinjau WhatsApp biasanya tidak menjalankan JavaScript — simpan ke *Files* lalu buka lewat browser, atau mainkan dari desktop.
 
 ## Plugin
 
