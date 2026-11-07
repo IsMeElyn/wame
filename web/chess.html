@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>♟️ Catur</title>
+<style>
+:root{--bg1:#0f172a;--bg2:#1e293b;--card:#ffffff12;--line:#ffffff1f;--tx:#e8edf5;--mute:#93a1b8;--acc:#f5b94a;--lt:#e3eaf1;--dk:#6d8aa6;--s:min(11.2vw,58px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--tx);background:radial-gradient(1200px 600px at 50% -10%,#334155,var(--bg1) 60%) fixed;padding:max(14px,env(safe-area-inset-top)) 12px max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:12px}
+h1{margin:4px 0 0;font-size:20px;letter-spacing:.5px}h1 span{color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;backdrop-filter:blur(8px);width:calc(var(--s)*8 + 20px);max-width:100%}
+#status{text-align:center;font-weight:600;min-height:22px}#status.chk{color:#ff7a7a}#status.end{color:var(--acc)}
+.cap{display:flex;justify-content:space-between;font-size:18px;min-height:26px;color:var(--mute);padding:0 4px}
+#board{display:grid;grid-template:repeat(8,var(--s))/repeat(8,var(--s));margin:6px auto;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px #0008;width:calc(var(--s)*8)}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;font-size:calc(var(--s)*.82);line-height:1;cursor:pointer;user-select:none}
+.sq.l{background:var(--lt)}.sq.d{background:var(--dk)}
+.sq.last::before,.sq.sel::before,.sq.hint::before{content:"";position:absolute;inset:0;background:#f5b94a99}
+.sq.sel::before{background:#ffd76acc}.sq.hint::before{background:#5ad1a0aa}
+.sq.chk::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,#ff4d4dcc 0,#ff4d4d00 72%)}
+.sq.mv::after{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:#0f172a55}
+.sq.mv.cp::after{width:86%;height:86%;background:none;border:calc(var(--s)*.09) solid #0f172a55}
+.p{position:relative;z-index:1;transition:transform .12s}.sq.sel .p{transform:scale(1.1)}
+.p.w{color:#fff;text-shadow:0 0 2px #000,0 0 2px #000,0 1px 3px #000a}
+.p.b{color:#151922;text-shadow:0 0 1px #fff8,0 1px 2px #fff5}
+.co{position:absolute;font-size:calc(var(--s)*.2);font-weight:700;opacity:.65;z-index:2;pointer-events:none}
+.co.f{right:3px;bottom:1px}.co.r{left:3px;top:1px}.l .co{color:var(--dk)}.d .co{color:var(--lt)}
+#moves{max-height:84px;overflow:auto;font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:2px 10px;padding:2px 4px}
+#moves b{color:var(--tx);font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button,select{font:inherit;color:var(--tx);background:#ffffff14;border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+button:active{transform:scale(.97)}button.pri{background:var(--acc);color:#1b1305;border-color:transparent;font-weight:700}
+select option{color:#000}
+.row>*{flex:1 1 auto}
+label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute);flex:1 1 90px}
+#promo,#over{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9}
+#promo.on,#over.on{display:flex}
+.box{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:18px;text-align:center;max-width:300px}
+.box .row{justify-content:center}.box .pc{font-size:44px;padding:4px 10px}
+.box h2{margin:0 0 6px}.box p{margin:0 0 12px;color:var(--mute)}
+#think{display:none;color:var(--acc);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<h1>♟️ <span>Catur</span></h1>
+<div class="card">
+  <div id="status"></div>
+  <div class="cap"><span id="cb"></span><span id="cw"></span></div>
+  <div id="board"></div>
+  <div id="think">🤔 AI sedang berpikir…</div>
+  <div id="moves"></div>
+  <div class="row">
+    <button id="bUndo">↩️ Undo</button><button id="bHint">💡 Saran</button><button id="bFlip">🔄 Putar</button><button id="bRes">🏳️ Menyerah</button>
+  </div>
+</div>
+<div class="card">
+  <div class="row" style="margin-top:0">
+    <label>Mode<select id="mode"><option value="ai">Lawan AI</option><option value="duo">Berdua (1 layar)</option></select></label>
+    <label id="lvL">Level AI<select id="level"><option value="easy">Mudah</option><option value="normal" selected>Normal</option><option value="hard">Sulit</option></select></label>
+    <label id="sdL">Warna kamu<select id="side"><option value="w">Putih</option><option value="b">Hitam</option><option value="r">Acak</option></select></label>
+  </div>
+  <div class="row"><button class="pri" id="bNew">▶️ Game baru</button></div>
+</div>
+<div id="promo"><div class="box"><h2>Promosi</h2><p>Pilih bidak pengganti</p><div class="row" id="pcs"></div></div></div>
+<div id="over"><div class="box"><h2 id="oT"></h2><p id="oP"></p><div class="row"><button class="pri" id="oN">Main lagi</button><button id="oC">Lihat papan</button></div></div></div>
+<script type="text/plain" id="engine">/*__ENGINE__*/</script>
+<script>
+(() => {
+'use strict';
+const $ = (id) => document.getElementById(id);
+const ENGINE = $('engine').textContent;
+const load = (src) => { const m = { exports: {} }; new Function('module', 'exports', src)(m, m.exports); return m.exports; };
+const { Chess } = load(ENGINE);
+const G = { p: '♟\uFE0E', n: '♞', b: '♝', r: '♜', q: '♛', k: '♚' };
+const NAME = { w: 'Putih', b: 'Hitam' };
+const KEY = 'catur-html-v1';
+const cfg = { mode: 'ai', level: 'normal', side: 'w', flip: false };
+let g, uci = [], sel = null, targets = [], hintMv = null, busy = false, over = null, pend = null, ticket = 0, gid = 0;
+
+/* ---------- AI di Web Worker (jika gagal: jalan di thread utama) ---------- */
+let worker = null;
+try {
+  const src = 'const E=' + JSON.stringify(ENGINE) + ";const m={exports:{}};new Function('module','exports',E)(m,m.exports);const Chess=m.exports.Chess;onmessage=(e)=>{const d=e.data;const c=new Chess();for(const u of d.moves)c.move(u);const r=c.aiMove(d.level);postMessage({id:d.id,uci:r.uci||null});};";
+  worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+  worker.addEventListener('error', () => { worker = null; });
+} catch (e) { worker = null; }
+const syncThink = (level) => { const c = new Chess(); uci.forEach((u) => c.move(u)); return c.aiMove(level).uci || null; };
+function think(level) {
+  const id = ++ticket, w = worker;
+  return new Promise((res) => {
+    if (!w) return setTimeout(() => res(syncThink(level)), 30);
+    const off = () => { w.removeEventListener('message', on); w.removeEventListener('error', err); };
+    const on = (e) => { if (e.data.id === id) { off(); res(e.data.uci); } };
+    const err = () => { off(); worker = null; try { w.terminate(); } catch (x) {} res(syncThink(level)); };
+    w.addEventListener('message', on); w.addEventListener('error', err);
+    w.postMessage({ id, moves: uci, level });
+  });
+}
+
+/* ---------- helpers ---------- */
+const mine = () => (cfg.mode === 'ai' ? cfg.side : null);
+const flipped = () => cfg.flip !== (cfg.mode === 'ai' && cfg.side === 'b');
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ cfg, uci, over })); } catch (e) {} };
+const sqName = (r, f) => 'abcdefgh'[f] + (r + 1);
+
+function render() {
+  const b = g.board(), fl = flipped(), turn = g.turn, last = g.lastMove();
+  const chkSq = g.inCheck() ? (() => { for (let r = 0; r < 8; r++) for (let f = 0; f < 8; f++) { const c = b[7 - r][f]; if (c && c.type === 'k' && c.color === turn) return sqName(r, f); } })() : null;
+  let html = '';
+  for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
+    const r = fl ? i : 7 - i, f = fl ? 7 - j : j, n = sqName(r, f), c = b[7 - r][f];
+    const cls = ['sq', (r + f) % 2 ? 'l' : 'd'];
+    if (last && (n === last.from || n === last.to)) cls.push('last');
+    if (n === sel) cls.push('sel');
+    if (hintMv && (n === hintMv[0] || n === hintMv[1])) cls.push('hint');
+    if (n === chkSq) cls.push('chk');
+    const t = targets.find((x) => x.to === n);
+    if (t) cls.push('mv'); if (t && c) cls.push('cp');
+    html += `<div class="${cls.join(' ')}" data-n="${n}">${j === 7 ? `<i class="co r">${r + 1}</i>` : ''}${i === 7 ? `<i class="co f">${'abcdefgh'[f]}</i>` : ''}${c ? `<span class="p ${c.color}">${G[c.type]}</span>` : ''}</div>`;
+  }
+  $('board').innerHTML = html;
+  // status
+  const res = over || g.result(), st = $('status');
+  st.className = '';
+  if (over) { st.textContent = over.text; st.className = 'end'; }
+  else if (res.over) { st.textContent = res.winner ? `🏁 ${NAME[res.winner]} menang — ${res.reason}` : `🤝 ${res.reason}`; st.className = 'end'; }
+  else {
+    const who = cfg.mode === 'ai' ? (turn === cfg.side ? ' (kamu)' : ' (AI)') : '';
+    st.textContent = `Giliran ${NAME[turn]}${who}` + (g.inCheck() ? ' — SKAK!' : '');
+    if (g.inCheck()) st.className = 'chk';
+  }
+  // captured
+  const have = { w: { p: 0, n: 0, b: 0, r: 0, q: 0 }, b: { p: 0, n: 0, b: 0, r: 0, q: 0 } }, start = { p: 8, n: 2, b: 2, r: 2, q: 1 };
+  b.forEach((row) => row.forEach((c) => { if (c && c.type !== 'k') have[c.color][c.type]++; }));
+  const lost = (col) => Object.keys(start).map((t) => G[t].repeat(Math.max(0, start[t] - have[col][t]))).join('');
+  $('cw').textContent = lost('b') ? '⚪ ' + lost('b') : ''; $('cb').textContent = lost('w') ? '⚫ ' + lost('w') : '';
+  // riwayat
+  const h = g.history(); let m = '';
+  for (let i = 0; i < h.length; i += 2) m += `<span><b>${i / 2 + 1}.</b> ${h[i]} ${h[i + 1] || ''}</span>`;
+  $('moves').innerHTML = m || '<span>Belum ada langkah — ketuk bidak untuk memulai.</span>';
+  $('moves').scrollTop = 1e6;
+  $('lvL').style.display = $('sdL').style.display = cfg.mode === 'ai' ? '' : 'none';
+}
+
+function finishCheck() {
+  const r = g.result();
+  if (r.over || over) {
+    save(); render();
+    const t = over ? over.text : r.winner ? `🏁 ${NAME[r.winner]} menang` : '🤝 Remis';
+    const win = over ? over.winner : r.winner;
+    $('oT').textContent = cfg.mode === 'ai' && win ? (win === cfg.side ? '🎉 Kamu menang!' : '😅 AI menang') : t;
+    $('oP').textContent = over ? over.text : r.reason;
+    setTimeout(() => $('over').classList.add('on'), 450);
+    return true;
+  }
+  return false;
+}
+
+async function aiTurn() {
+  if (cfg.mode !== 'ai' || over || g.isGameOver() || g.turn === cfg.side) return;
+  const my = gid;
+  busy = true; $('think').style.display = 'block'; render();
+  const u = await think(cfg.level);
+  if (my !== gid) return;                       // game baru dimulai saat AI berpikir
+  busy = false; $('think').style.display = 'none';
+  if (u && g.turn !== cfg.side && !over) { g.move(u); uci.push(u); }
+  sel = null; targets = []; save(); render(); finishCheck();
+}
+
+function play(from, to, promo) {
+  const r = g.move(from + to + (promo || ''));
+  if (r.error) return;
+  uci.push(r.uci); sel = null; targets = []; hintMv = null;
+  save(); render();
+  if (!finishCheck()) aiTurn();
+}
+
+$('board').addEventListener('click', (e) => {
+  const el = e.target.closest('.sq'); if (!el || busy || over || g.isGameOver()) return;
+  if (cfg.mode === 'ai' && g.turn !== cfg.side) return;
+  const n = el.dataset.n, c = g.board()[8 - Number(n[1])]['abcdefgh'.indexOf(n[0])];
+  const t = targets.find((x) => x.to === n);
+  if (sel && t) {
+    const promos = targets.filter((x) => x.to === n && x.promotion);
+    if (promos.length) { pend = { from: sel, to: n }; $('pcs').innerHTML = ['q', 'r', 'b', 'n'].map((p) => `<button class="pc" data-p="${p}">${G[p]}</button>`).join(''); $('promo').classList.add('on'); return; }
+    return play(sel, n);
+  }
+  hintMv = null;
+  if (c && c.color === g.turn && n !== sel) { sel = n; targets = g.moves().filter((x) => x.from === n); }
+  else { sel = null; targets = []; }
+  render();
+});
+$('pcs').addEventListener('click', (e) => { const p = e.target.closest('[data-p]'); if (!p || !pend) return; $('promo').classList.remove('on'); const q = pend; pend = null; play(q.from, q.to, p.dataset.p); });
+
+$('bUndo').onclick = () => {
+  if (busy || over || !g.history().length) return;
+  g.undo(); uci.pop();
+  if (cfg.mode === 'ai' && g.turn !== cfg.side && g.history().length) { g.undo(); uci.pop(); }
+  sel = null; targets = []; hintMv = null; save(); render();
+};
+$('bHint').onclick = async () => {
+  if (busy || over || g.isGameOver() || (cfg.mode === 'ai' && g.turn !== cfg.side)) return;
+  busy = true; $('think').style.display = 'block';
+  const my = gid, u = await think('hard');
+  if (my !== gid) return;
+  busy = false; $('think').style.display = 'none';
+  if (u) { hintMv = [u.slice(0, 2), u.slice(2, 4)]; sel = null; targets = []; render(); }
+};
+$('bFlip').onclick = () => { cfg.flip = !cfg.flip; save(); render(); };
+$('bRes').onclick = () => {
+  if (over || g.isGameOver() || !confirm('Menyerah?')) return;
+  const loser = cfg.mode === 'ai' ? cfg.side : g.turn;
+  over = { winner: loser === 'w' ? 'b' : 'w', text: `🏳️ ${NAME[loser]} menyerah — ${NAME[loser === 'w' ? 'b' : 'w']} menang` };
+  finishCheck();
+};
+$('mode').onchange = () => { cfg.mode = $('mode').value; render(); };
+$('oC').onclick = () => $('over').classList.remove('on');
+function newGame() {
+  ticket++; gid++; busy = false; $('think').style.display = 'none'; $('over').classList.remove('on');
+  cfg.mode = $('mode').value; cfg.level = $('level').value;
+  let s = $('side').value; if (s === 'r') s = Math.random() < .5 ? 'w' : 'b'; cfg.side = s; cfg.flip = false;
+  g = new Chess(); uci = []; sel = null; targets = []; hintMv = null; over = null;
+  save(); render(); aiTurn();
+}
+$('bNew').onclick = $('oN').onclick = newGame;
+
+/* ---------- mulai: lanjutkan game tersimpan bila ada ---------- */
+try {
+  const d = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (d && Array.isArray(d.uci)) {
+    Object.assign(cfg, d.cfg); g = new Chess();
+    for (const u of d.uci) { if (g.move(u).error) throw 0; uci.push(u); }
+    over = d.over || null;
+  }
+} catch (e) { g = null; uci = []; over = null; }
+if (!g) g = new Chess();
+$('mode').value = cfg.mode; $('level').value = cfg.level; $('side').value = cfg.side;
+render(); if (!finishCheck()) aiTurn();
+})();
+</script>
+</body>
+</html>
