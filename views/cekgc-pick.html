@@ -1,9 +1,0 @@
-<!-- Beberapa grup cocok. Variabel: botName, query, groups[{n, subject, size, id}] -->
-<rich disclaimer="{{botName}}">
-  <h2>🔎 Grup cocok untuk "{{query}}"</h2>
-  <table title="Pilih salah satu">
-    <tr><th>No</th><th>Nama grup</th><th>Anggota</th></tr>
-    <for each="groups" as="g"><tr><td>{{g.n}}</td><td>{{g.subject}}</td><td>{{g.size}}</td></tr></for>
-  </table>
-  <p>Pilih dengan nomor: <code>.cekgc {{query}} 2</code> atau tulis nama lebih lengkap.</p>
-</rich>
